@@ -16,9 +16,10 @@ namespace _2StepVerification.Providers
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            //generate randum number of 6 digits to be used as verification code
+            //Generate randum number of 6 digits to be used as verification code
             Random generator = new Random();
             String verificationCode = generator.Next(1111, 1000000).ToString("D6");
+
 
             int affectedRows = 0;
             string queryString = @"Update dbo.Users set [VerificationCode]=@VerificationCode , VerificationCodeDate = getdate() where [Email] = @UserEmail and [Password] = @UserPassword;
@@ -53,7 +54,12 @@ namespace _2StepVerification.Providers
                 var identity = new ClaimsIdentity(context.Options.AuthenticationType);
                 identity.AddClaim(new Claim(ClaimTypes.Role, "user"));
                 identity.AddClaim(new Claim(ClaimTypes.Email, context.UserName));
-                
+
+                /***********************************************************************
+                 * In actual work we should send here, the verification code to the user BY EMAIL 
+                 * but now for simplicity we'll get it from the database
+                 * *********************************************************************/
+
                 context.Validated(identity);
             }
             else
