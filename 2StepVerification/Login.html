@@ -30,7 +30,7 @@
                 <td>
                     <label>
                         Email:
-                        <input id="email_tb" type="text" class="form-control" />
+                        <input id="email_txt" type="text" class="form-control" />
                     </label>
                 </td>
             </tr>
@@ -38,34 +38,39 @@
                 <td>
                     <label>
                         Password:
-                        <input id="password_tb" type="text" class="form-control" />
+                        <input id="password_txt" type="password" class="form-control" />
                     </label>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <input type="button" class="btn btn-primary pull-right" value="Login"/>
+                    <input id="login_btn" type="button" class="btn btn-primary pull-right" value="Login"/>
                 </td>
             </tr>
         </table>
         <!--End Login form -->
         <!--Verification code form (2nd step verification) -->
-        <table style="margin:40px auto" id="login_form">
+        <table style="margin:40px auto;display:none" id="login_form">
             <tr>
                 <td>
                     <label>
                         Verification Code:
-                        <input id="email_tb" type="text" class="form-control" />
+                        <input id="code_txt" type="text" class="form-control" />
                     </label>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <input type="button" class="btn btn-primary pull-right" value="Submit" />
+                    <input id="verify_btn" type="button" class="btn btn-primary pull-right" value="Submit" />
                 </td>
             </tr>
         </table>
         <!--End Verification code form (2nd step verification) -->
+        <!-- Error placeholder -->
+        <div id="err_container" class="alert alert danger collapse">
+            <span id="err_msg"></span>
+        </div>
+        <!-- End Error placeholder -->
     </div>
 
     <!-- jQuery -->
@@ -73,6 +78,34 @@
 
     <!-- Minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#login_btn").click(function () {
+                var params = { username: $("#email_txt").val(), password: $("#password_txt").val(), grant_type: "password" };
+                console.log(params);
+                $.ajax({
+                    method: "POST",
+                    url: "/token",
+                    contentType: "application/json; charset=utf-8",
+                    data: params,
+                    success: function (data) {
+                        console.log(data);
+                        console.log(JSON.parse(data));
+                        console.log(JSON.stringify(data));
 
+                        $("#err_msg").text("");
+                        $("#err_container").hide();
+                    },
+                    error: function (XHR, errStatus, errorThrown) {
+                        console.log("errrrr",XHR, errStatus, errorThrown);
+                        /*var err = JSON.parse(XHR.responseText);
+                        errorMessage = err.Message;
+                        $("#err_msg").text(errorMessage);
+                        $("#err_container").show();*/
+                    }
+                });
+            });
+        })
+    </script>
 </body>
 </html>
