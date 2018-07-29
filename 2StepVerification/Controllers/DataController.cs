@@ -4,6 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
 
 namespace _2StepVerification.Controllers
 {
@@ -11,19 +14,28 @@ namespace _2StepVerification.Controllers
     {
         [AllowAnonymous]
         [HttpGet]
-        [Route("api/FetchPublicData")]
+        [Route("api/FetchGendreLookUp")]
         public IHttpActionResult GetPublicData()
         {
-            return Ok(new string[] { "value1", "value2" });
+            return Ok(new string[] { "Male", "Female" });
         }
 
 
         [Authorize(Roles = "verifieduser")]
         [HttpGet]
-        [Route("api/FetchSecuredData")]
+        [Route("api/FetchEmployees")]
         public IHttpActionResult GetSecuredData()
         {
-            return Ok(new string[] { "value1", "value2" });
+            DataTable dt = new DataTable();
+            string queryString = @"SELECT * from [Employees]";
+
+            using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["MyConnectionString"].ConnectionString))
+            {
+                SqlCommand command = new SqlCommand(queryString, connection);
+                SqlDataAdapter sda = new SqlDataAdapter(command);
+                sda.Fill(dt);
+            }
+            return Ok(dt);
         }
     }
 }
