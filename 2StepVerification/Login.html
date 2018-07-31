@@ -30,7 +30,7 @@
                 <td>
                     <label>
                         Email:
-                        <input id="email_txt" type="text" class="form-control" />
+                        <input id="email_txt" type="text" class="form-control" oninput="clearMessage()"/>
                     </label>
                 </td>
             </tr>
@@ -38,7 +38,7 @@
                 <td>
                     <label>
                         Password:
-                        <input id="password_txt" type="password" class="form-control" />
+                        <input id="password_txt" type="password" class="form-control" oninput="clearMessage()"/>
                     </label>
                 </td>
             </tr>
@@ -48,26 +48,9 @@
                 </td>
             </tr>
         </table>
-        <!--End Login form -->
-        <!--Verification code form (2nd step verification) -->
-        <table style="margin:40px auto;display:none" id="login_form">
-            <tr>
-                <td>
-                    <label>
-                        Verification Code:
-                        <input id="code_txt" type="text" class="form-control" />
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <input id="verify_btn" type="button" class="btn btn-primary pull-right" value="Submit" />
-                </td>
-            </tr>
-        </table>
-        <!--End Verification code form (2nd step verification) -->
+        <!--End Login form -->      
         <!-- Error placeholder -->
-        <div id="err_container" class="alert alert danger collapse">
+        <div id="err_container" class="alert alert-danger collapse text-center">
             <span id="err_msg"></span>
         </div>
         <!-- End Error placeholder -->
@@ -79,9 +62,49 @@
     <!-- Minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script>
+        /*******************************************************************************************************
+        *
+        * It's a 2 step verification:
+        * 1) The user will login and get a primary token if his credentials are correct
+        * 2) A verification code (should be) sent to his mail
+        * 3) The user will use the token to access a secured action in SecondStepVerificationController
+        * 4) That action verifies the code, if correct and not expired then the user will get ANOTHER token
+        * 5) That new token will be used along the site to access the site secured data
+        *
+        ********************************************************************************************************/
+        function IsValidEmail(username) {
+
+            if (username === "" || username.indexOf("@") === -1 || username.indexOf("@") > username.lastIndexOf("."))
+            {
+                $("#err_msg").text("Please enter valid email");
+                $("#err_container").show();
+                $("#email_txt").focus();
+                return false;
+            }
+            return true;
+        }
+
         $(document).ready(function () {
+
             $("#login_btn").click(function () {
-                var params = { username: $("#email_txt").val(), password: $("#password_txt").val(), grant_type: "password" };
+
+                var username = $("#email_txt").val();
+                var password = $("#password_txt").val();
+
+                //Validate email
+                if (!IsValidEmail(username))
+                    return;
+
+                //Validate password
+                if (password === "")
+                {
+                    $("#err_msg").text("Please enter password");
+                    $("#err_container").show();
+                    $("#password_txt").focus();
+                    return;
+                }
+
+                var params = { username: username, password: password, grant_type: "password" };
                 console.log(params);
                 $.ajax({
                     method: "POST",
@@ -89,23 +112,29 @@
                     contentType: "application/json; charset=utf-8",
                     data: params,
                     success: function (data) {
-                        console.log(data);
-                        console.log(JSON.parse(data));
-                        console.log(JSON.stringify(data));
 
-                        $("#err_msg").text("");
-                        $("#err_container").hide();
+                        //Save access_token to localStorage
+                        localStorage.setItem("token", data.access_token);
+
+                        //forward to verify page to validate the code sent to the user before being able to access the site
+                        document.location.href = "Verify.html";
                     },
                     error: function (XHR, errStatus, errorThrown) {
                         console.log("errrrr",XHR, errStatus, errorThrown);
-                        /*var err = JSON.parse(XHR.responseText);
+                        var err = JSON.parse(XHR.responseText);
                         errorMessage = err.Message;
                         $("#err_msg").text(errorMessage);
-                        $("#err_container").show();*/
+                        $("#err_container").show();
                     }
                 });
             });
         })
+
+        
+        function clearMessage(){
+            $("#err_msg").text("");
+            $("#err_container").hide();                                
+        }
     </script>
 </body>
 </html>

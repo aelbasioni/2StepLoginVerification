@@ -138,13 +138,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\MyDB.mdf" />
-    <Content Include="App_Data\MyDB_log.ldf">
-      <DependentUpon>MyDB.mdf</DependentUpon>
+    <Content Include="App_Data\EmployeesDB.mdf" />
+    <Content Include="App_Data\EmployeesDB_log.ldf">
+      <DependentUpon>EmployeesDB.mdf</DependentUpon>
     </Content>
     <Content Include="Global.asax" />
     <Content Include="Index.html" />
     <Content Include="Login.html" />
+    <Content Include="Verify.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

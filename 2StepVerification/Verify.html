@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify</title>
+    <meta charset="utf-8" />
+    <!-- IE Edge Meta Tag -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional Theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- Optional IE8 Support -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script>
+        var token = localStorage.getItem("token");
+
+        //Go to login page if there's no login token generated or it's expired
+        if (token === "" || token === null || token === undefined)
+            document.location.href = "Login.html";
+    </script>
+</head>
+<body>
+    <div class="container">
+
+        <!--Verification code form (2nd step verification) -->
+        <table style="margin:40px auto;" id="verify_form">
+            <tr>
+                <td>
+                    <label>
+                        Verification Code:
+                        <input id="code_txt" type="text" class="form-control" oninput="clearMessage()"/>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="Login.html">Go Login</a>
+                    <input id="verify_btn" type="button" class="btn btn-primary pull-right" value="Submit" />
+                </td>
+            </tr>
+        </table>
+        <!--End Verification code form (2nd step verification) -->
+        <!-- Error placeholder -->
+        <div id="err_container" class="alert alert-danger collapse text-center">
+            <span id="err_msg"></span>
+        </div>
+        <!-- End Error placeholder -->
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <!-- Minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            
+            $("#verify_btn").click(function () {
+                var code = $("#code_txt").val();
+                if(code){
+                    $.ajax({
+                        method: "GET",
+                        url: "/api/Auth/Validate/"+code,
+                        contentType: "application/json; charset=utf-8",
+                        data: {},
+                        headers: {"authorization": "bearer " + token},
+                        success: function (data) {
+
+                            //clear the first token after being used in validating the code sent to the user
+                            localStorage.setItem("token", "");
+
+                            // the new token along with other other user's data will be stored to be used over all the site
+                            localStorage.setItem("userdata", data);
+
+                            //forward to the site main page
+                            document.location.href = "Index.html";
+                        },
+                        error: function (XHR, errStatus, errorThrown) {
+                            console.log("errrrr",XHR, errStatus, errorThrown);
+                            var err = JSON.parse(XHR.responseText);
+                            errorMessage = err.Message;
+                            $("#err_msg").text(errorMessage);
+                            $("#err_container").show();
+                        }
+                    });
+                }else
+                {
+                    $("#err_msg").text("Please enter the verification code sent to your email");
+                    $("#err_container").show();
+                    $("#code_txt").focus();
+                }
+            });
+        })
+
+        function clearMessage(){
+            $("#err_msg").text("");
+            $("#err_container").hide();                                
+        }
+    </script>
+</body>
+</html>

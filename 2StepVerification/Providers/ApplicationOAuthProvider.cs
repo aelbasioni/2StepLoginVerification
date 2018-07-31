@@ -65,10 +65,9 @@ namespace _2StepVerification.Providers
             else
             {
                 context.SetError("invalid_grant", "Provided username and password is incorrect");                
-                return;
+               
             }
-
-          
+            return;          
         }
 
         public override Task TokenEndpoint(OAuthTokenEndpointContext context)

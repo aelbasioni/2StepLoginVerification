@@ -18,15 +18,15 @@ namespace _2StepVerification.Controllers
     public class SecondStepVerificationController : ApiController
     {
         [Authorize(Roles = "user")]
-        [Route("Validate")]
+        [Route("Validate/{code}")]
         [HttpGet]
-        public IHttpActionResult ValidateCode(string verificationCode)
+        public IHttpActionResult ValidateCode(string code)
         {
             string accessToken = "";
             string Email = "", Name = "";
             DataTable dt = new DataTable();
 
-            if (!string.IsNullOrWhiteSpace(verificationCode))
+            if (!string.IsNullOrWhiteSpace(code))
             {
             
                 var identity = (ClaimsIdentity)User.Identity;
@@ -47,7 +47,7 @@ namespace _2StepVerification.Controllers
                 {
                     SqlCommand command = new SqlCommand(queryString, connection);
                     command.Parameters.AddWithValue("@UserEmail", email);
-                    command.Parameters.AddWithValue("@VerificationCode", verificationCode);
+                    command.Parameters.AddWithValue("@VerificationCode", code);
 
                     SqlDataAdapter sda = new SqlDataAdapter(command);
                     sda.Fill(dt);                    
@@ -56,7 +56,7 @@ namespace _2StepVerification.Controllers
                 if (dt.Rows.Count > 0)
                 {
                     Email = Convert.ToString(dt.Rows[0]["Email"]);
-                    Name = Convert.ToString(dt.Rows[0]["UserName"]);
+                    Name = Convert.ToString(dt.Rows[0]["FullName"]);
 
                     identity.AddClaim(new Claim(ClaimTypes.Role, "verifieduser")); //sub role                   
                     identity.AddClaim(new Claim(ClaimTypes.Name, Name));
@@ -66,7 +66,7 @@ namespace _2StepVerification.Controllers
 
                     DateTime currentUtc = DateTime.UtcNow;
                     ticket.Properties.IssuedUtc = currentUtc;
-                    ticket.Properties.ExpiresUtc = currentUtc.Add(Startup.OAuthOptions.AccessTokenExpireTimeSpan);
+                    ticket.Properties.ExpiresUtc = currentUtc.Add(Startup.VerifiedAccessTokenExpireTimeSpan);
 
                     accessToken = Startup.OAuthOptions.AccessTokenFormat.Protect(ticket);
                    
@@ -77,7 +77,7 @@ namespace _2StepVerification.Controllers
                 }
             }
 
-            return Ok(new { accessToken = accessToken, name = Name, email = Email});
+            return Ok(new { access_token = accessToken, name = Name, email = Email});
         }
 
     }
