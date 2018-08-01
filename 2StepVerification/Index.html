@@ -23,12 +23,48 @@
 
 </head>
 <body>
-    <div class="container">
-        <!---->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid" style="margin:13px 20px">
+            <div class="navbar-header">
+                <span id="welcome_txt"></span>
+            </div>
+            <a href="javascript:logOut();" class="pull-right" title="Log out" aria-label="log out">Log out</a>
+        </div>
+    </nav>
+    <div class="container" style="padding-top:40px">
+        <!-- Loading -->
+        <div class="text-center" id="loading_msg" style="height:40px">
+            Loading ...
+        </div>
+        <!-- Loading -->
+        <!-- Error placeholder -->
+        <div id="err_container" class="alert alert-danger collapse text-center">
+            <span id="err_msg"></span>
+        </div>
+        <!-- End Error placeholder -->
         <!--Employees data -->
-        <table style="margin:40px auto" id="emp_tbl">
+        
+        <a href="javascript:loadEmployees();" class="pull-right" title="Reload Employees" aria-label="reload employees" style="font-size:1.5em">🗘</a>
+        <span id="emp_count_txt" class="pull-left"></span>
+        <table class="table table-condensed table-striped table-bordered" id="emp_tbl">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Salary</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
         </table>
         <!--End Employees data -->
+        <!-- No data -->
+        <div class="text-center" id="nodata_msg">
+            No Data
+        </div>
+        <!-- End No data -->
     </div>
 
     <!-- jQuery -->
@@ -36,6 +72,73 @@
 
     <!-- Minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>
+        var userDataStr = localStorage.getItem("userdata");
+        var userDataObj;
+        //Go to login page if there's no login token generated or it's expired
+        if (userDataStr) {
+            userDataObj = JSON.parse(userDataStr);
+            if(!userDataObj || !userDataObj.access_token)
+                document.location.href = "Login.html";            
+        } else
+            document.location.href = "Login.html";
 
+
+        function logOut() {
+            localStorage.setItem("userdata", "");
+            document.location.href = "Login.html";
+        }
+
+        function loadEmployees() {
+            $("#loading_msg").show();
+            $.ajax({
+                method: "GET",
+                url: "/api/FetchEmployees",
+                contentType: "application/json; charset=utf-8",
+                data: {},
+                headers: { "authorization": "bearer " + userDataObj.access_token },
+                success: function (data) {
+                    $("#loading_msg").hide();
+                    
+                    $("#emp_tbl > tbody").empty();
+
+                    if (data && data.length > 0) {
+                        var dataLength = data.length;                        
+                        for (var i = 0; i < dataLength; i++) {
+                            $("#emp_tbl > tbody:last-child").append(
+                                '<tr><td>' + data[i].ID + '</td><td>' + data[i].Name + '</td><td>' + data[i].Gender + '</td><td>' + data[i].Salary+ '</td></tr>');
+                        }
+                        $("#emp_count_txt").text(dataLength + " items");
+                        $("#nodata_msg").hide();
+                    } else
+                        $("#nodata_msg").show();
+
+                },
+                error: function (XHR, errStatus, errorThrown) {
+                    $("#loading_msg").hide();
+                    var err = JSON.parse(XHR.responseText);
+                    errorMessage = err.Message;
+                    $("#err_msg").text(errorMessage);
+                    $("#err_container").show();
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+
+            $("#welcome_txt").text("Welcome " + userDataObj.name +"!");
+
+            loadEmployees();
+         
+            $("#refresh_btn").click(function () {
+                loadEmployees();
+            });
+
+        });
+
+
+
+    </script>
 </body>
 </html>
