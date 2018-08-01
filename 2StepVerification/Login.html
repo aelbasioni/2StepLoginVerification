@@ -24,36 +24,57 @@
 </head>
 <body>
     <div class="container">
-        <!--Login form (1st step verification) -->
-        <table style="margin:40px auto" id="login_form">
-            <tr>
-                <td>
-                    <label>
-                        Email:
-                        <input id="email_txt" type="text" class="form-control" oninput="clearMessage()"/>
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label>
-                        Password:
-                        <input id="password_txt" type="password" class="form-control" oninput="clearMessage()"/>
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <input id="login_btn" type="button" class="btn btn-primary pull-right" value="Login"/>
-                </td>
-            </tr>
-        </table>
-        <!--End Login form -->      
-        <!-- Error placeholder -->
-        <div id="err_container" class="alert alert-danger collapse text-center">
-            <span id="err_msg"></span>
+        <div class="row" style="margin-top:50px">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h1 class="panel-title">
+                            Log in
+                        </h1>
+                    </div>
+                    <div class="panel-collapse collapse in" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <!--Login form (1st step verification) -->
+                            <table style="margin:40px auto" id="login_form">
+                                <tr>
+                                    <td>
+                                        <label>
+                                            Email:
+                                            <input id="email_txt" type="text" class="form-control" oninput="clearMessage()" placeholder="use user@gmail.com"/>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label>
+                                            Password:
+                                            <input id="password_txt" type="password" class="form-control" oninput="clearMessage()" placeholder="use 123456"/>
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-top:15px">
+                                        <input id="login_btn" type="button" class="btn btn-primary pull-right" value="Login" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <!--End Login form -->
+                            <!-- Error placeholder -->
+                            <div id="err_container" class="alert alert-danger collapse text-center">
+                                <span id="err_msg"></span>
+                            </div>
+                            <!-- End Error placeholder -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <!-- End Error placeholder -->
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3 text-center">
+                <small style="color:red;"><strong>Note:</strong> the user is manually inserted into the database, as the registration process is out of the scope of this project</small>
+            </div>
+        </div>
     </div>
 
     <!-- jQuery -->

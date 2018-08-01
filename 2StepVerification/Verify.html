@@ -25,38 +25,58 @@
         var token = localStorage.getItem("token");
 
         //Go to login page if there's no login token generated or it's expired
-        if (token === "" || token === null || token === undefined)
+        if (!token)
             document.location.href = "Login.html";
     </script>
 </head>
 <body>
     <div class="container">
-
-        <!--Verification code form (2nd step verification) -->
-        <table style="margin:40px auto;" id="verify_form">
-            <tr>
-                <td>
-                    <label>
-                        Verification Code:
-                        <input id="code_txt" type="text" class="form-control" oninput="clearMessage()"/>
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <a href="Login.html">Go Login</a>
-                    <input id="verify_btn" type="button" class="btn btn-primary pull-right" value="Submit" />
-                </td>
-            </tr>
-        </table>
-        <!--End Verification code form (2nd step verification) -->
-        <!-- Error placeholder -->
-        <div id="err_container" class="alert alert-danger collapse text-center">
-            <span id="err_msg"></span>
+        <div class="row" style="margin-top:50px">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h1 class="panel-title">
+                            Verifying the identity
+                        </h1>
+                    </div>
+                    <div class="panel-collapse collapse in" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            Please enter the verification code sent to your email<br />
+                            <small><span style="color:red">Note:</span> this code expires in 10 mins</small>
+                            <!--Verification code form (2nd step verification) -->
+                            <table style="margin:40px auto;" id="verify_form">
+                                <tr>
+                                    <td>
+                                        <label>
+                                            Verification Code:
+                                            <input id="code_txt" type="text" class="form-control" oninput="clearMessage()" />
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-top:15px;">
+                                        <a href="Login.html">Go Login</a>
+                                        <input id="verify_btn" type="button" class="btn btn-primary pull-right" value="Submit" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <!--End Verification code form (2nd step verification) -->
+                            <!-- Error placeholder -->
+                            <div id="err_container" class="alert alert-danger collapse text-center">
+                                <span id="err_msg"></span>
+                            </div>
+                            <!-- End Error placeholder -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- End Error placeholder -->
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3 text-center">
+                <small style="color:red;"><strong>Note:</strong> for simplicity, we read the code directly from the database and past it here, BUT in actual work we have to send the verification code to the user by email</small>
+            </div>
+        </div>
     </div>
-
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
@@ -64,37 +84,37 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function () {
-            
+
             $("#verify_btn").click(function () {
                 var code = $("#code_txt").val();
-                if(code){
+                if (code) {
                     $.ajax({
                         method: "GET",
-                        url: "/api/Auth/Validate/"+code,
+                        url: "/api/Auth/Validate/" + code,
                         contentType: "application/json; charset=utf-8",
                         data: {},
-                        headers: {"authorization": "bearer " + token},
+                        headers: { "authorization": "bearer " + token },
                         success: function (data) {
-
+                            console.log("data", data);
+                            console.log("JSON.stringify(data)", JSON.stringify(data))
                             //clear the first token after being used in validating the code sent to the user
                             localStorage.setItem("token", "");
 
                             // the new token along with other other user's data will be stored to be used over all the site
-                            localStorage.setItem("userdata", data);
+                            localStorage.setItem("userdata", JSON.stringify(data));
 
                             //forward to the site main page
                             document.location.href = "Index.html";
                         },
                         error: function (XHR, errStatus, errorThrown) {
-                            console.log("errrrr",XHR, errStatus, errorThrown);
+                            console.log("errrrr", XHR, errStatus, errorThrown);
                             var err = JSON.parse(XHR.responseText);
-                            errorMessage = err.Message;
+                            errorMessage = err.ExceptionMessage || err.Message;
                             $("#err_msg").text(errorMessage);
                             $("#err_container").show();
                         }
                     });
-                }else
-                {
+                } else {
                     $("#err_msg").text("Please enter the verification code sent to your email");
                     $("#err_container").show();
                     $("#code_txt").focus();
@@ -102,9 +122,9 @@
             });
         })
 
-        function clearMessage(){
+        function clearMessage() {
             $("#err_msg").text("");
-            $("#err_container").hide();                                
+            $("#err_container").hide();
         }
     </script>
 </body>

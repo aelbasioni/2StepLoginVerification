@@ -31,7 +31,10 @@
             <a href="javascript:logOut();" class="pull-right" title="Log out" aria-label="log out">Log out</a>
         </div>
     </nav>
-    <div class="container" style="padding-top:40px">
+    <div class="container">
+
+        <h1  style="margin-bottom:40px">Employees</h1>
+
         <!-- Loading -->
         <div class="text-center" id="loading_msg" style="height:40px">
             Loading ...
@@ -43,7 +46,7 @@
         </div>
         <!-- End Error placeholder -->
         <!--Employees data -->
-        
+
         <a href="javascript:loadEmployees();" class="pull-right" title="Reload Employees" aria-label="reload employees" style="font-size:1.5em">🗘</a>
         <span id="emp_count_txt" class="pull-left"></span>
         <table class="table table-condensed table-striped table-bordered" id="emp_tbl">
@@ -55,9 +58,7 @@
                     <th>Salary</th>
                 </tr>
             </thead>
-            <tbody>
-                
-            </tbody>
+            <tbody></tbody>
         </table>
         <!--End Employees data -->
         <!-- No data -->
@@ -78,8 +79,8 @@
         //Go to login page if there's no login token generated or it's expired
         if (userDataStr) {
             userDataObj = JSON.parse(userDataStr);
-            if(!userDataObj || !userDataObj.access_token)
-                document.location.href = "Login.html";            
+            if (!userDataObj || !userDataObj.access_token)
+                document.location.href = "Login.html";
         } else
             document.location.href = "Login.html";
 
@@ -99,14 +100,14 @@
                 headers: { "authorization": "bearer " + userDataObj.access_token },
                 success: function (data) {
                     $("#loading_msg").hide();
-                    
+
                     $("#emp_tbl > tbody").empty();
 
                     if (data && data.length > 0) {
-                        var dataLength = data.length;                        
+                        var dataLength = data.length;
                         for (var i = 0; i < dataLength; i++) {
                             $("#emp_tbl > tbody:last-child").append(
-                                '<tr><td>' + data[i].ID + '</td><td>' + data[i].Name + '</td><td>' + data[i].Gender + '</td><td>' + data[i].Salary+ '</td></tr>');
+                                '<tr><td>' + data[i].ID + '</td><td>' + data[i].Name + '</td><td>' + data[i].Gender + '</td><td>' + data[i].Salary + '</td></tr>');
                         }
                         $("#emp_count_txt").text(dataLength + " items");
                         $("#nodata_msg").hide();
@@ -127,10 +128,10 @@
 
         $(document).ready(function () {
 
-            $("#welcome_txt").text("Welcome " + userDataObj.name +"!");
+            $("#welcome_txt").text("Welcome " + userDataObj.name + "!");
 
             loadEmployees();
-         
+
             $("#refresh_btn").click(function () {
                 loadEmployees();
             });
@@ -141,4 +142,5 @@
 
     </script>
 </body>
+
 </html>
