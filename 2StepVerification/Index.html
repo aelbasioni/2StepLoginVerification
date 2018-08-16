@@ -115,10 +115,14 @@
                 },
                 error: function (XHR, errStatus, errorThrown) {
                     $("#loading_msg").hide();
-                    var err = JSON.parse(XHR.responseText);
-                    errorMessage = err.Message;
-                    $("#err_msg").text(errorMessage);
-                    $("#err_container").show();
+                    if (XHR && XHR.status === 401) //Unauthorized request
+                        document.location.href = "Login.html";
+                    else {
+                        var err = JSON.parse(XHR.responseText);
+                        errorMessage = err.Message;
+                        $("#err_msg").text(errorMessage);
+                        $("#err_container").show();
+                    }
                 }
             });
         }
@@ -126,7 +130,8 @@
 
         $(document).ready(function () {
 
-            $("#welcome_txt").text("Welcome " + userDataObj.name + "!");
+            if (userDataObj)
+                $("#welcome_txt").text("Welcome " + userDataObj.name + "!");
 
             loadEmployees();
 
